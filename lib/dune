@@ -1,0 +1,4 @@
+(library
+ (name oreme)
+ (modules task main)
+ (libraries cmdliner ptime))

@@ -1,0 +1,4 @@
+(executable
+ (public_name oreme)
+ (name main)
+ (libraries oreme ptime cmdliner))
