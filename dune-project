@@ -7,7 +7,7 @@
 (source
  (github drinosan/oreme))
 
-(authors "Author Name <sbed@protonmail.com>")
+(authors "DrinoSan <sbed@protonmail.com>")
 
 (maintainers "Maintainer Name <maintainer@example.com>")
 
@@ -19,7 +19,7 @@
  (name oreme)
  (synopsis "CLI tool for tasks")
  (description "Small learning project. The goal is to create a small CLI to create tasks and remind users for due dates")
- (depends ocaml)
+ (depends ocaml ptime yojson cmdliner)
  (tags
   ("add topics" "to describe" your project)))
 

@@ -4,7 +4,7 @@ synopsis: "CLI tool for tasks"
 description:
   "Small learning project. The goal is to create a small CLI to create tasks and remind users for due dates"
 maintainer: ["Maintainer Name <maintainer@example.com>"]
-authors: ["Author Name <sbed@protonmail.com>"]
+authors: ["DrinoSan <sbed@protonmail.com>"]
 license: "LICENSE"
 tags: ["add topics" "to describe" "your" "project"]
 homepage: "https://github.com/drinosan/oreme"
@@ -13,6 +13,9 @@ bug-reports: "https://github.com/drinosan/oreme/issues"
 depends: [
   "dune" {>= "3.19"}
   "ocaml"
+  "ptime"
+  "yojson"
+  "cmdliner"
   "odoc" {with-doc}
 ]
 build: [
