@@ -1,4 +1,4 @@
 (library
  (name oreme)
  (modules task main types storage cli)
- (libraries cmdliner ptime yojson))
+ (libraries cmdliner ptime yojson unix))
