@@ -1,1 +1,1 @@
-let () = Oreme.Main.run ()
+let () = Oreme.Cli.run ()

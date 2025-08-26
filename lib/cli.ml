@@ -13,7 +13,7 @@ let add_task_cmd tasks_file id title description due_date reminder_offset
     | _ -> Sys_notification
   in
   let new_task =
-    create_task id title description due_date "pendig" reminder_offset
+    create_task id title description due_date "pending" reminder_offset
       reminder_type
   in
   let new_tasks = new_task :: tasks in
@@ -28,8 +28,9 @@ let list_cmd =
   let tasks_file =
     Arg.(required & pos 0 (some string) None & info [] ~docv:"TASKS_FILE")
   in
-  ( Term.(const list_tasks_cmd $ tasks_file),
-    Cmd.info "list" ~doc:"List all tasks" )
+  Cmd.v
+    (Cmd.info "list" ~doc:"List all tasks")
+    Term.(const list_tasks_cmd $ tasks_file)
 
 let remind_cmd tasks_file =
   let tasks = load_tasks tasks_file in
@@ -50,17 +51,68 @@ let remind_cmd tasks_file =
       | Email -> ()
       | Sms -> ()
       | Sys_notification ->
-          ignore
-            (Sys.command
-               ("notify-send 'Task Reminder' '" ^ string_of_task task ^ "'")))
+          let cmd =
+            Printf.sprintf
+              "osascript -e 'display notification \"Task due: %s\" with title \
+               \"Task Reminder\" subtitle \"Due now\" sound name \"Ping\"'"
+              task.title
+          in
+          ignore (Sys.command cmd))
     reminders
 
-let add_cmd = 
+let add_cmd =
   let id = Arg.(required & pos 0 (some int) None & info [] ~docv:"ID") in
-(*   let id = Arg.required & Arg.pos 0 (Arg.some Arg.int) None & Arg.info [] ~docv:"ID"   <-- Could also be written like this but above line uses open scoping*)
-  let title = Arg.(required & pos 1 (some string) None & info [] ~docv:"TITLE") in
-  let description = Arg.(required & pos 2 (some string) None & info [] ~docv:"DESCRIPTION") in
+  let title =
+    Arg.(required & pos 1 (some string) None & info [] ~docv:"TITLE")
+  in
+  let description =
+    Arg.(required & pos 2 (some string) None & info [] ~docv:"DESCRIPTION")
+  in
+  let due_date =
+    Arg.(required & pos 3 (some float) None & info [] ~docv:"DUE_DATE")
+  in
+  let tasks_file =
+    Arg.(
+      value & opt string "tasks.json"
+      & info [ "file" ] ~docv:"TASKS_FILE"
+          ~doc:"Tasks file (default: tasks.json)")
+  in
+  let reminder_offset =
+    Arg.(
+      value & opt int 3600
+      & info [ "remind" ] ~docv:"REMINDER_OFFSET"
+          ~doc:"Reminder offset in seconds")
+  in
+  let reminder_type =
+    Arg.(
+      value
+      & opt string "sys_notification"
+      & info [ "type" ] ~docv:"REMINDER_TYPE"
+          ~doc:"Reminder type (email, sms, sys_notification)")
+  in
+  Cmd.v
+    (Cmd.info "add" ~doc:"Add a new task")
+    Term.(
+      const add_task_cmd $ tasks_file $ id $ title $ description $ due_date
+      $ reminder_offset $ reminder_type)
 
+let remind_cmd =
+  let tasks_file =
+    Arg.(
+      value & opt string "tasks.json"
+      & info [ "file" ] ~docv:"TASKS_FILE"
+          ~doc:"Tasks file (default: tasks.json)")
+  in
+  Cmd.v
+    (Cmd.info "remind" ~doc:"Show task reminders")
+    Term.(const remind_cmd $ tasks_file)
 
+let default_cmd = Cmd.info "oreme" ~doc:"Task manager CLI"
 
-
+let run () =
+  let default =
+    Cmd.v default_cmd
+      Term.(ret (const (fun () -> `Help (`Pager, None)) $ const ()))
+  in
+  let cmd = Cmd.group default_cmd [ default; add_cmd; list_cmd; remind_cmd ] in
+  Stdlib.exit (Cmd.eval cmd)
